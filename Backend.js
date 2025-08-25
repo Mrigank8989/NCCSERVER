@@ -11,7 +11,7 @@
   app.use(bodyParser.json());
 
   const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: ["http://localhost:5173", "https://nccproject.onrender.com"],
     methods: 'GET,POST,PUT,DELETE',  
     credentials: true,              
   };
