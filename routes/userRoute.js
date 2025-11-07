@@ -22,32 +22,22 @@ router.post('/add-question', addQuestion);
 
 // ✅ Save new quiz attempt
 router.post('/attempts', addQuizAttempt);
-
-// ✅ Get all attempts for a specific user (used by dashboard)
+// ✅ Fetch quiz attempts for a user
 router.get('/attempts', async (req, res) => {
   const { user_id } = req.query;
-
-  if (!user_id) {
-    return res.status(400).json({ message: "Missing user_id in query" });
-  }
-
   try {
     const result = await pool.query(
-      `SELECT qa.attempt_id, qa.quiz_id, q.title AS quiz_title, qa.score, 
-              qa.total_questions, qa.percentage, qa.time_taken, qa.attempt_date
-       FROM quiz_attempts qa
-       JOIN quizzes q ON qa.quiz_id = q.quiz_id
-       WHERE qa.user_id = $1
-       ORDER BY qa.attempt_date DESC`,
+      'SELECT * FROM quiz_attempts WHERE user_id = $1 ORDER BY attempt_date DESC',
       [user_id]
     );
-
-    console.log(`📤 Sent ${result.rows.length} attempts for user_id ${user_id}`);
-    res.status(200).json(result.rows);
+    res.json(result.rows);
   } catch (error) {
-    console.error("❌ Error fetching user attempts:", error);
-    res.status(500).json({ message: "Failed to fetch quiz attempts", error: error.message });
+    console.error('❌ Error fetching quiz attempts:', error);
+    res.status(500).json({ message: 'Error fetching quiz attempts' });
   }
 });
+
+
+
 
 module.exports = router;
