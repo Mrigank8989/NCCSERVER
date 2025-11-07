@@ -1,40 +1,18 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const userRoutes = require('./routes/userRoute');
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./swagger-output.json');
+const http = require('http');
+const app = require('./backend'); // 👈 lowercase here (matches the file name)
 require('dotenv').config();
 
-const app = express();
+const PORT = process.env.PORT || 5000;
 
-// ✅ Middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+const server = http.createServer(app);
 
-// ✅ Proper CORS configuration for both Render & localhost
-app.use(cors({
-  origin: [
-    'https://nccproject.onrender.com', // Deployed frontend
-    'http://localhost:5173',           // Local development
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-}));
-
-// ✅ Handle preflight requests
-app.options('*', cors());
-
-// ✅ API Routes
-app.use('/api', userRoutes);
-
-// ✅ Swagger API Docs
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-// ✅ Health check route (helps check backend status quickly)
-app.get('/', (req, res) => {
-  res.send('✅ NCC Server is running and healthy.');
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`🌐 Visit: http://localhost:${PORT}`);
 });
 
-module.exports = app;
+// ✅ Graceful shutdown handling
+process.on('SIGTERM', () => {
+  console.log('🛑 Shutting down server...');
+  server.close(() => process.exit(0));
+});
