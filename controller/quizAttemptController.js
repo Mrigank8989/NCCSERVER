@@ -1,47 +1,34 @@
-// controller/quizAttemptController.js
-const { insertQuizAttempt } = require('../module/quizAttemptModel');
-const pool = require('../config/db');
+const { insertQuiz ,getQuizById} = require('../module/quizModel');
 
-const addQuizAttempt = async (req, res) => {
+async function addQuiz(req, res) {
+  const { difficulty, set_number, title } = req.body;
+
+
   try {
-    console.log("📩 Received attempt data:", req.body);
-
-    const { user_id, quiz_id, score } = req.body;
-
-    if (!user_id || !quiz_id || score === undefined) {
-      return res.status(400).json({ message: "Missing required fields." });
-    }
-
-    // ✅ Log connection check
-    console.log("🔍 Checking existing attempt for user:", user_id, "quiz:", quiz_id);
-
-    const existingAttempt = await pool.query(
-      "SELECT * FROM quiz_attempts WHERE user_id = $1 AND quiz_id = $2",
-      [user_id, quiz_id]
-    );
-
-    console.log("🧾 Existing attempt rows:", existingAttempt.rows);
-
-    // (Optional) allow multiple attempts for now
-    const result = await insertQuizAttempt({
-      user_id,
-      quiz_id,
-      score
-    });
-
-    console.log("✅ Quiz attempt inserted successfully:", result);
-
-    res.status(201).json({
-      message: "Quiz attempt recorded successfully",
-      result
-    });
-  } catch (error) {
-    console.error("❌ Error adding quiz attempt:", error);
-    res.status(500).json({
-      message: "Failed to add quiz attempt",
-      error: error.message
-    });
+    await insertQuiz({ difficulty, set_number, title });
+    res.status(201).json({ message: 'Quiz created successfully.' });
+  } catch (err) {
+    console.error('Error inserting quiz:', err);
+    res.status(500).json({ message: 'Failed to insert quiz.' });
   }
-};
+}
 
-module.exports = { addQuizAttempt };
+async function fetchQuizById(req, res) {
+  const { quiz_id } = req.params;
+
+  try {
+    const quiz = await getQuizById(quiz_id);
+    if (!quiz) {
+      return res.status(404).json({ message: 'Quiz not found.' });
+    }
+    res.status(200).json(quiz);
+  } catch (err) {
+    console.error('Error fetching quiz:', err);
+    res.status(500).json({ message: 'Failed to fetch quiz.' });
+  }
+}
+
+module.exports = {
+  addQuiz,
+  fetchQuizById
+};
