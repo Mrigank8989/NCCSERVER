@@ -52,6 +52,28 @@ router.get('/attempts', async (req, res) => {
   }
 });
 
+// ✅ Get all quiz attempts for a specific user
+router.get('/attempts', async (req, res) => {
+  const { user_id } = req.query;
+
+  if (!user_id) {
+    return res.status(400).json({ message: "User ID is required" });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT * FROM quiz_attempts WHERE user_id = $1 ORDER BY attempt_date DESC`,
+      [user_id]
+    );
+
+    return res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("❌ Error fetching quiz attempts:", error);
+    res.status(500).json({ message: "Failed to fetch user quiz attempts" });
+  }
+});
+
+
 
 
 
