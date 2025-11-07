@@ -20,6 +20,20 @@ router.get('/:quiz_id', fetchQuizById);
 router.post('/add-question', addQuestion);
 
 // ─── QUIZ ATTEMPT ROUTES ──────────────────────────────────────
+// ✅ Fetch all quiz attempts by user_id
+router.get('/attempts', async (req, res) => {
+  const { user_id } = req.query;
+  try {
+    const result = await pool.query(
+      'SELECT * FROM quiz_attempts WHERE user_id = $1 ORDER BY attempt_date DESC',
+      [user_id]
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching quiz attempts:', error);
+    res.status(500).json({ message: 'Failed to fetch quiz attempts' });
+  }
+});
 
 // ✅ Save new quiz attempt
 router.post('/attempts', addQuizAttempt);
@@ -37,6 +51,7 @@ router.get('/attempts', async (req, res) => {
     res.status(500).json({ message: 'Error fetching quiz attempts' });
   }
 });
+
 
 
 
