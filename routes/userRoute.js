@@ -1,6 +1,7 @@
+const pool = require('../config/db'); // ✅ Needed for DB queries
 const express = require('express');
 const router = express.Router();
-const pool = require('../config/db'); // ✅ Needed for DB queries
+
 
 // ─── Controllers ──────────────────────────────────────────────
 const { fetchAllUsers, createUserController, SignIn } = require("../controller/authController");
