@@ -13,7 +13,8 @@ router.get('/getAllUsers', fetchAllUsers);
 router.post('/SignUp', createUserController);
 router.post('/SignIn', SignIn);
 
-// ─── QUIZ ATTEMPT ROUTES (⚠️ MUST COME BEFORE /:quiz_id) ───────
+// ─── QUIZ ATTEMPT ROUTES ──────────────────────────────────────
+// ✅ Keep these ABOVE any `/:param` routes
 router.post('/attempts', addQuizAttempt);
 
 router.get('/attempts', async (req, res) => {
@@ -39,6 +40,17 @@ router.get('/attempts', async (req, res) => {
 // ─── QUIZ ROUTES ───────────────────────────────────────────────
 router.post('/addQuiz', addQuiz);
 router.post('/add-question', addQuestion);
-router.get('/:quiz_id', fetchQuizById); // ⚠️ This must always stay LAST
+
+// ✅ Explicitly validate numeric quiz_id to prevent wrong matches
+router.get('/:quiz_id', (req, res, next) => {
+  const { quiz_id } = req.params;
+
+  if (isNaN(quiz_id)) {
+    // If the quiz_id is not a number (e.g., “attempts”), skip to next route
+    return res.status(400).json({ message: "Invalid quiz ID" });
+  }
+
+  next();
+}, fetchQuizById);
 
 module.exports = router;
