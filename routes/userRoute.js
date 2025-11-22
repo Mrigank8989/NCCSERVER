@@ -13,8 +13,7 @@ router.get('/getAllUsers', fetchAllUsers);
 router.post('/SignUp', createUserController);
 router.post('/SignIn', SignIn);
 
-// ─── QUIZ ATTEMPT ROUTES ──────────────────────────────────────
-// ✅ Keep these ABOVE any `/:param` routes
+// ─── QUIZ ATTEMPT ROUTES (must come BEFORE /:quiz_id) ────────
 router.post('/attempts', addQuizAttempt);
 
 router.get('/attempts', async (req, res) => {
@@ -30,10 +29,10 @@ router.get('/attempts', async (req, res) => {
       [user_id]
     );
 
-    res.status(200).json(result.rows);
+    return res.status(200).json(result.rows);
   } catch (error) {
     console.error("❌ Error fetching quiz attempts:", error);
-    res.status(500).json({ message: "Failed to fetch user quiz attempts" });
+    return res.status(500).json({ message: "Failed to fetch user quiz attempts" });
   }
 });
 
@@ -41,15 +40,11 @@ router.get('/attempts', async (req, res) => {
 router.post('/addQuiz', addQuiz);
 router.post('/add-question', addQuestion);
 
-// ✅ Explicitly validate numeric quiz_id to prevent wrong matches
+// 🚨 FINAL SAFETY: block non-numeric quiz_id BEFORE calling controller
 router.get('/:quiz_id', (req, res, next) => {
-  const { quiz_id } = req.params;
-
-  if (isNaN(quiz_id)) {
-    // If the quiz_id is not a number (e.g., “attempts”), skip to next route
+  if (isNaN(req.params.quiz_id)) {
     return res.status(400).json({ message: "Invalid quiz ID" });
   }
-
   next();
 }, fetchQuizById);
 
