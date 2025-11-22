@@ -19,8 +19,9 @@ router.post('/attempts', addQuizAttempt);
 router.get('/attempts', async (req, res) => {
   const { user_id } = req.query;
 
+  // Always return array, even on error
   if (!user_id) {
-    return res.status(400).json({ message: "User ID is required" });
+    return res.status(200).json([]);
   }
 
   try {
@@ -29,11 +30,13 @@ router.get('/attempts', async (req, res) => {
       [user_id]
     );
 
-    res.status(200).json(result.rows);
+    return res.status(200).json(result.rows || []);
 
   } catch (error) {
     console.error("❌ Error fetching quiz attempts:", error);
-    res.status(500).json({ message: "Failed to fetch user quiz attempts" });
+
+    // 🔥 IMPORTANT: Always return array
+    return res.status(200).json([]);
   }
 });
 
