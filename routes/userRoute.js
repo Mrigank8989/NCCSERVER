@@ -29,12 +29,14 @@ router.get('/attempts', async (req, res) => {
       [user_id]
     );
 
-    return res.status(200).json(result.rows);
+    res.status(200).json(result.rows);
+
   } catch (error) {
     console.error("❌ Error fetching quiz attempts:", error);
-    return res.status(500).json({ message: "Failed to fetch user quiz attempts" });
+    res.status(500).json({ message: "Failed to fetch user quiz attempts" });
   }
 });
+
 
 // ─── QUIZ ROUTES ───────────────────────────────────────────────
 router.post('/addQuiz', addQuiz);
