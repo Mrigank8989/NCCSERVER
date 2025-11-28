@@ -45,6 +45,17 @@ router.get('/attempts', async (req, res) => {
 router.post('/addQuiz', addQuiz);
 router.post('/add-question', addQuestion);
 
+router.delete("/attempts/:id", async (req, res) => {
+  try {
+    await pool.query("DELETE FROM quiz_attempts WHERE attempt_id=$1", [req.params.id]);
+    res.status(200).json({ message: "Deleted successfully" });
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({ message: "Delete failed" });
+  }
+});
+
+
 // 🚨 FINAL SAFETY: block non-numeric quiz_id BEFORE calling controller
 router.get('/:quiz_id', (req, res, next) => {
   if (isNaN(req.params.quiz_id)) {
